@@ -17,6 +17,13 @@
     <label for="due_date">期日</label>
     <input type="date" id="due_date" name="due_date" value="{{ todo.due_date or '' }}">
 
+    <label for="category">カテゴリ</label>
+    <select id="category" name="category">
+      {% for cat in categories %}
+        <option value="{{ cat }}" {{ "selected" if todo.category == cat else "" }}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">{{ "更新する" if mode == "edit" else "登録する" }}</button>
       <a class="btn" href="{{ url_for('index') }}">キャンセル</a>

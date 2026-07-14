@@ -19,17 +19,27 @@ app = Flask(
 @app.route("/")
 def index():
     error = None
-    active_todos = []
+    grouped = {cat: [] for cat in sheets.CATEGORIES}
     completed_todos = []
     try:
         todos = sheets.list_todos()
-        active_todos = [t for t in todos if t.get("completed") != "TRUE"]
         completed_todos = [t for t in todos if t.get("completed") == "TRUE"]
         completed_todos.sort(key=lambda r: r.get("updated_at", ""), reverse=True)
+        for todo in todos:
+            if todo.get("completed") == "TRUE":
+                continue
+            category = todo.get("category") or sheets.DEFAULT_CATEGORY
+            if category not in grouped:
+                category = sheets.DEFAULT_CATEGORY
+            grouped[category].append(todo)
     except Exception as exc:  # 認証未設定などの場合でも一覧ページ自体は表示する
         error = str(exc)
     return render_template(
-        "index.html", active_todos=active_todos, completed_todos=completed_todos, error=error
+        "index.html",
+        categories=sheets.CATEGORIES,
+        grouped=grouped,
+        completed_todos=completed_todos,
+        error=error,
     )
 
 
@@ -39,27 +49,36 @@ def new_todo():
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "").strip()
         due_date = request.form.get("due_date", "").strip()
+        category = request.form.get("category", "").strip()
 
         if not title:
             return render_template(
                 "form.html",
                 mode="new",
-                todo={"title": title, "content": content, "due_date": due_date},
+                categories=sheets.CATEGORIES,
+                todo={"title": title, "content": content, "due_date": due_date, "category": category},
                 error="タイトルは必須です。",
             )
 
         try:
-            sheets.add_todo(title, content, due_date)
+            sheets.add_todo(title, content, due_date, category)
         except Exception as exc:
             return render_template(
                 "form.html",
                 mode="new",
-                todo={"title": title, "content": content, "due_date": due_date},
+                categories=sheets.CATEGORIES,
+                todo={"title": title, "content": content, "due_date": due_date, "category": category},
                 error=f"登録に失敗しました: {exc}",
             )
         return redirect(url_for("index"))
 
-    return render_template("form.html", mode="new", todo={}, error=None)
+    return render_template(
+        "form.html",
+        mode="new",
+        categories=sheets.CATEGORIES,
+        todo={"category": sheets.DEFAULT_CATEGORY},
+        error=None,
+    )
 
 
 @app.route("/edit/<todo_id>", methods=["GET", "POST"])
@@ -68,24 +87,27 @@ def edit_todo(todo_id):
         title = request.form.get("title", "").strip()
         content = request.form.get("content", "").strip()
         due_date = request.form.get("due_date", "").strip()
+        category = request.form.get("category", "").strip()
 
         if not title:
             return render_template(
                 "form.html",
                 mode="edit",
                 todo_id=todo_id,
-                todo={"title": title, "content": content, "due_date": due_date},
+                categories=sheets.CATEGORIES,
+                todo={"title": title, "content": content, "due_date": due_date, "category": category},
                 error="タイトルは必須です。",
             )
 
         try:
-            updated = sheets.update_todo(todo_id, title, content, due_date)
+            updated = sheets.update_todo(todo_id, title, content, due_date, category)
         except Exception as exc:
             return render_template(
                 "form.html",
                 mode="edit",
                 todo_id=todo_id,
-                todo={"title": title, "content": content, "due_date": due_date},
+                categories=sheets.CATEGORIES,
+                todo={"title": title, "content": content, "due_date": due_date, "category": category},
                 error=f"更新に失敗しました: {exc}",
             )
         if not updated:
@@ -93,7 +115,8 @@ def edit_todo(todo_id):
                 "form.html",
                 mode="edit",
                 todo_id=todo_id,
-                todo={"title": title, "content": content, "due_date": due_date},
+                categories=sheets.CATEGORIES,
+                todo={"title": title, "content": content, "due_date": due_date, "category": category},
                 error="対象のやることが見つかりませんでした。",
             )
         return redirect(url_for("index"))
@@ -101,12 +124,16 @@ def edit_todo(todo_id):
     try:
         todo = sheets.get_todo(todo_id)
     except Exception as exc:
-        return render_template("form.html", mode="edit", todo_id=todo_id, todo={}, error=str(exc))
+        return render_template(
+            "form.html", mode="edit", todo_id=todo_id, categories=sheets.CATEGORIES, todo={}, error=str(exc)
+        )
 
     if todo is None:
         return redirect(url_for("index"))
 
-    return render_template("form.html", mode="edit", todo_id=todo_id, todo=todo, error=None)
+    return render_template(
+        "form.html", mode="edit", todo_id=todo_id, categories=sheets.CATEGORIES, todo=todo, error=None
+    )
 
 
 @app.route("/delete/<todo_id>", methods=["POST"])

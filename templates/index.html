@@ -36,12 +36,19 @@
     </li>
   {% endmacro %}
 
-  {% if active_todos %}
-    <ul class="todo-list">
-      {% for todo in active_todos %}
-        {{ todo_item(todo, false) }}
-      {% endfor %}
-    </ul>
+  {% set has_active = grouped.values() | map("length") | sum > 0 %}
+
+  {% if has_active %}
+    {% for cat in categories %}
+      {% if grouped[cat] %}
+        <h2 class="section-title">{{ cat }} ({{ grouped[cat]|length }})</h2>
+        <ul class="todo-list">
+          {% for todo in grouped[cat] %}
+            {{ todo_item(todo, false) }}
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endfor %}
   {% else %}
     {% if not error %}
       <p class="empty-state">まだ登録されたやることがありません。</p>

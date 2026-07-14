@@ -13,7 +13,9 @@ from datetime import datetime
 import gspread
 
 SHEET_NAME = "todos"
-HEADER = ["id", "title", "content", "due_date", "created_at", "updated_at", "completed"]
+HEADER = ["id", "title", "content", "due_date", "created_at", "updated_at", "completed", "category"]
+CATEGORIES = ["遊び", "家事", "課題", "その他"]
+DEFAULT_CATEGORY = "その他"
 
 
 def _get_client():
@@ -65,24 +67,29 @@ def get_todo(todo_id):
     return None
 
 
-def add_todo(title, content, due_date):
+def add_todo(title, content, due_date, category):
     worksheet = _get_worksheet()
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     todo_id = uuid.uuid4().hex[:8]
-    worksheet.append_row([todo_id, title, content, due_date, now, now, "FALSE"])
+    if category not in CATEGORIES:
+        category = DEFAULT_CATEGORY
+    worksheet.append_row([todo_id, title, content, due_date, now, now, "FALSE", category])
     return todo_id
 
 
-def update_todo(todo_id, title, content, due_date):
+def update_todo(todo_id, title, content, due_date, category):
     worksheet = _get_worksheet()
     cell = worksheet.find(todo_id, in_column=1)
     if cell is None:
         return False
+    if category not in CATEGORIES:
+        category = DEFAULT_CATEGORY
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    created_at = worksheet.cell(cell.row, 5).value
+    created_at = worksheet.cell(cell.row, HEADER.index("created_at") + 1).value
+    completed = worksheet.cell(cell.row, HEADER.index("completed") + 1).value
     worksheet.update(
-        values=[[todo_id, title, content, due_date, created_at, now]],
-        range_name=f"A{cell.row}:F{cell.row}",
+        values=[[todo_id, title, content, due_date, created_at, now, completed, category]],
+        range_name=f"A{cell.row}:H{cell.row}",
     )
     return True
 

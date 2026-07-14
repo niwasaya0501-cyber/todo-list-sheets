@@ -155,7 +155,7 @@ body {
 .todo-form label { font-size: 0.85rem; color: var(--muted); margin-top: 0.6rem; }
 .required { color: #ef4444; }
 
-.todo-form input, .todo-form textarea {
+.todo-form input, .todo-form textarea, .todo-form select {
   padding: 0.55rem 0.7rem;
   border-radius: 6px;
   border: 1px solid var(--border);
