@@ -171,7 +171,14 @@ body {
 .priority-badge-lg.priority-mid { background: var(--prio-mid-bg); color: var(--prio-mid-text); }
 .priority-badge-lg.priority-low { background: var(--prio-low-bg); color: var(--prio-low-text); }
 
-.todo-content { margin: 0; color: var(--muted); white-space: pre-wrap; }
+.todo-content {
+  margin: 0;
+  color: var(--muted);
+  white-space: pre-wrap;
+  font-family: "Kaisei Decol", serif;
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
 
 .todo-due { font-size: 0.9rem; color: var(--muted); }
 
