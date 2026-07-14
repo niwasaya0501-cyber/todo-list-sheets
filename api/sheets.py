@@ -13,7 +13,7 @@ from datetime import datetime
 import gspread
 
 SHEET_NAME = "todos"
-HEADER = ["id", "title", "content", "due_date", "created_at", "updated_at"]
+HEADER = ["id", "title", "content", "due_date", "created_at", "updated_at", "completed"]
 
 
 def _get_client():
@@ -40,10 +40,11 @@ def _get_worksheet():
         worksheet.append_row(HEADER)
         return worksheet
 
-    # ヘッダー行が無い(新規シート)場合は追加しておく
+    # ヘッダー行が無い(新規シート)/ 列が古い場合はヘッダー行だけを上書きする
+    # (insert_rowだと不一致のたびに行が増殖するため、常にA1からの上書きにする)
     first_row = worksheet.row_values(1)
     if first_row != HEADER:
-        worksheet.insert_row(HEADER, index=1)
+        worksheet.update(values=[HEADER], range_name="A1")
     return worksheet
 
 
@@ -68,7 +69,7 @@ def add_todo(title, content, due_date):
     worksheet = _get_worksheet()
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     todo_id = uuid.uuid4().hex[:8]
-    worksheet.append_row([todo_id, title, content, due_date, now, now])
+    worksheet.append_row([todo_id, title, content, due_date, now, now, "FALSE"])
     return todo_id
 
 
@@ -92,4 +93,17 @@ def delete_todo(todo_id):
     if cell is None:
         return False
     worksheet.delete_rows(cell.row)
+    return True
+
+
+def set_completed(todo_id, completed):
+    worksheet = _get_worksheet()
+    cell = worksheet.find(todo_id, in_column=1)
+    if cell is None:
+        return False
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    completed_col = HEADER.index("completed") + 1
+    updated_at_col = HEADER.index("updated_at") + 1
+    worksheet.update_cell(cell.row, completed_col, "TRUE" if completed else "FALSE")
+    worksheet.update_cell(cell.row, updated_at_col, now)
     return True

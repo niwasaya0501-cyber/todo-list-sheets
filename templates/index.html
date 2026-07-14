@@ -9,34 +9,51 @@
     <p class="alert alert-error">スプレッドシートの読み込みに失敗しました: {{ error }}</p>
   {% endif %}
 
-  {% if todos %}
+  {% macro todo_item(todo, completed) %}
+    <li class="todo-card{{ ' todo-card-completed' if completed else '' }}">
+      <form method="post" action="{{ url_for('complete_todo', todo_id=todo.id) }}" class="complete-form">
+        <input type="hidden" name="completed" value="{{ '0' if completed else '1' }}">
+        <input type="checkbox" class="complete-checkbox" onchange="this.form.submit()" {{ 'checked' if completed else '' }}>
+      </form>
+      <div class="todo-main">
+        <h2 class="todo-title">{{ todo.title }}</h2>
+        {% if todo.content %}
+          <p class="todo-content">{{ todo.content }}</p>
+        {% endif %}
+      </div>
+      <div class="todo-meta">
+        <span class="todo-due">
+          期日: {{ todo.due_date if todo.due_date else "未設定" }}
+        </span>
+        <div class="todo-actions">
+          <a class="btn btn-small" href="{{ url_for('edit_todo', todo_id=todo.id) }}">編集</a>
+          <form method="post" action="{{ url_for('delete_todo', todo_id=todo.id) }}"
+                onsubmit="return confirm('「{{ todo.title }}」を削除しますか？');">
+            <button type="submit" class="btn btn-small btn-danger">削除</button>
+          </form>
+        </div>
+      </div>
+    </li>
+  {% endmacro %}
+
+  {% if active_todos %}
     <ul class="todo-list">
-      {% for todo in todos %}
-        <li class="todo-card">
-          <div class="todo-main">
-            <h2 class="todo-title">{{ todo.title }}</h2>
-            {% if todo.content %}
-              <p class="todo-content">{{ todo.content }}</p>
-            {% endif %}
-          </div>
-          <div class="todo-meta">
-            <span class="todo-due">
-              期日: {{ todo.due_date if todo.due_date else "未設定" }}
-            </span>
-            <div class="todo-actions">
-              <a class="btn btn-small" href="{{ url_for('edit_todo', todo_id=todo.id) }}">編集</a>
-              <form method="post" action="{{ url_for('delete_todo', todo_id=todo.id) }}"
-                    onsubmit="return confirm('「{{ todo.title }}」を削除しますか？');">
-                <button type="submit" class="btn btn-small btn-danger">削除</button>
-              </form>
-            </div>
-          </div>
-        </li>
+      {% for todo in active_todos %}
+        {{ todo_item(todo, false) }}
       {% endfor %}
     </ul>
   {% else %}
     {% if not error %}
       <p class="empty-state">まだ登録されたやることがありません。</p>
     {% endif %}
+  {% endif %}
+
+  {% if completed_todos %}
+    <h2 class="section-title">完了済み ({{ completed_todos|length }})</h2>
+    <ul class="todo-list">
+      {% for todo in completed_todos %}
+        {{ todo_item(todo, true) }}
+      {% endfor %}
+    </ul>
   {% endif %}
 {% endblock %}

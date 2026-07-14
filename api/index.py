@@ -19,12 +19,18 @@ app = Flask(
 @app.route("/")
 def index():
     error = None
-    todos = []
+    active_todos = []
+    completed_todos = []
     try:
         todos = sheets.list_todos()
+        active_todos = [t for t in todos if t.get("completed") != "TRUE"]
+        completed_todos = [t for t in todos if t.get("completed") == "TRUE"]
+        completed_todos.sort(key=lambda r: r.get("updated_at", ""), reverse=True)
     except Exception as exc:  # 認証未設定などの場合でも一覧ページ自体は表示する
         error = str(exc)
-    return render_template("index.html", todos=todos, error=error)
+    return render_template(
+        "index.html", active_todos=active_todos, completed_todos=completed_todos, error=error
+    )
 
 
 @app.route("/new", methods=["GET", "POST"])
@@ -107,6 +113,16 @@ def edit_todo(todo_id):
 def delete_todo(todo_id):
     try:
         sheets.delete_todo(todo_id)
+    except Exception:
+        pass
+    return redirect(url_for("index"))
+
+
+@app.route("/complete/<todo_id>", methods=["POST"])
+def complete_todo(todo_id):
+    completed = request.form.get("completed") == "1"
+    try:
+        sheets.set_completed(todo_id, completed)
     except Exception:
         pass
     return redirect(url_for("index"))
