@@ -4,14 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}やることリスト{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Kosugi+Maru&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <header class="app-header">
-    <h1><a href="{{ url_for('index') }}">やることリスト</a></h1>
-  </header>
-  <main class="container">
-    {% block content %}{% endblock %}
-  </main>
+  <div class="page-bg">
+    <div class="page-card">
+      <header class="app-header">
+        <span class="app-ribbon">🎀</span>
+        <h1><a href="{{ url_for('index') }}">やることリスト</a></h1>
+      </header>
+      <main class="container">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
 </body>
 </html>
