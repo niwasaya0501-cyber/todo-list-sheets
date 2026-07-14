@@ -24,6 +24,13 @@
       {% endfor %}
     </select>
 
+    <label for="priority">重要度</label>
+    <select id="priority" name="priority">
+      {% for p in priorities %}
+        <option value="{{ p }}" {{ "selected" if todo.priority == p else "" }}>{{ p }}</option>
+      {% endfor %}
+    </select>
+
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">{{ "更新する" if mode == "edit" else "登録する" }}</button>
       <a class="btn" href="{{ url_for('index') }}">キャンセル</a>

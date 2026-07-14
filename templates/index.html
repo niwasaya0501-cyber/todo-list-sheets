@@ -10,7 +10,9 @@
   {% endif %}
 
   {% macro todo_item(todo, completed) %}
-    <li class="todo-card{{ ' todo-card-completed' if completed else '' }}">
+    {% set prio = todo.priority or "中" %}
+    {% set prio_class = "priority-high" if prio == "高" else ("priority-low" if prio == "低" else "priority-mid") %}
+    <li class="todo-card {{ prio_class }}{{ ' todo-card-completed' if completed else '' }}">
       <form method="post" action="{{ url_for('complete_todo', todo_id=todo.id) }}" class="complete-form">
         <input type="hidden" name="completed" value="{{ '0' if completed else '1' }}">
         <input type="checkbox" class="complete-checkbox" onchange="this.form.submit()" {{ 'checked' if completed else '' }}>
@@ -22,6 +24,7 @@
         {% endif %}
       </div>
       <div class="todo-meta">
+        <span class="priority-badge {{ prio_class }}">重要度: {{ prio }}</span>
         <span class="todo-due">
           期日: {{ todo.due_date if todo.due_date else "未設定" }}
         </span>

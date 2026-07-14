@@ -43,31 +43,42 @@ def index():
     )
 
 
+def _form_fields():
+    return {
+        "title": request.form.get("title", "").strip(),
+        "content": request.form.get("content", "").strip(),
+        "due_date": request.form.get("due_date", "").strip(),
+        "category": request.form.get("category", "").strip(),
+        "priority": request.form.get("priority", "").strip(),
+    }
+
+
 @app.route("/new", methods=["GET", "POST"])
 def new_todo():
     if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        content = request.form.get("content", "").strip()
-        due_date = request.form.get("due_date", "").strip()
-        category = request.form.get("category", "").strip()
+        fields = _form_fields()
 
-        if not title:
+        if not fields["title"]:
             return render_template(
                 "form.html",
                 mode="new",
                 categories=sheets.CATEGORIES,
-                todo={"title": title, "content": content, "due_date": due_date, "category": category},
+                priorities=sheets.PRIORITIES,
+                todo=fields,
                 error="タイトルは必須です。",
             )
 
         try:
-            sheets.add_todo(title, content, due_date, category)
+            sheets.add_todo(
+                fields["title"], fields["content"], fields["due_date"], fields["category"], fields["priority"]
+            )
         except Exception as exc:
             return render_template(
                 "form.html",
                 mode="new",
                 categories=sheets.CATEGORIES,
-                todo={"title": title, "content": content, "due_date": due_date, "category": category},
+                priorities=sheets.PRIORITIES,
+                todo=fields,
                 error=f"登録に失敗しました: {exc}",
             )
         return redirect(url_for("index"))
@@ -76,7 +87,8 @@ def new_todo():
         "form.html",
         mode="new",
         categories=sheets.CATEGORIES,
-        todo={"category": sheets.DEFAULT_CATEGORY},
+        priorities=sheets.PRIORITIES,
+        todo={"category": sheets.DEFAULT_CATEGORY, "priority": sheets.DEFAULT_PRIORITY},
         error=None,
     )
 
@@ -84,30 +96,36 @@ def new_todo():
 @app.route("/edit/<todo_id>", methods=["GET", "POST"])
 def edit_todo(todo_id):
     if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        content = request.form.get("content", "").strip()
-        due_date = request.form.get("due_date", "").strip()
-        category = request.form.get("category", "").strip()
+        fields = _form_fields()
 
-        if not title:
+        if not fields["title"]:
             return render_template(
                 "form.html",
                 mode="edit",
                 todo_id=todo_id,
                 categories=sheets.CATEGORIES,
-                todo={"title": title, "content": content, "due_date": due_date, "category": category},
+                priorities=sheets.PRIORITIES,
+                todo=fields,
                 error="タイトルは必須です。",
             )
 
         try:
-            updated = sheets.update_todo(todo_id, title, content, due_date, category)
+            updated = sheets.update_todo(
+                todo_id,
+                fields["title"],
+                fields["content"],
+                fields["due_date"],
+                fields["category"],
+                fields["priority"],
+            )
         except Exception as exc:
             return render_template(
                 "form.html",
                 mode="edit",
                 todo_id=todo_id,
                 categories=sheets.CATEGORIES,
-                todo={"title": title, "content": content, "due_date": due_date, "category": category},
+                priorities=sheets.PRIORITIES,
+                todo=fields,
                 error=f"更新に失敗しました: {exc}",
             )
         if not updated:
@@ -116,7 +134,8 @@ def edit_todo(todo_id):
                 mode="edit",
                 todo_id=todo_id,
                 categories=sheets.CATEGORIES,
-                todo={"title": title, "content": content, "due_date": due_date, "category": category},
+                priorities=sheets.PRIORITIES,
+                todo=fields,
                 error="対象のやることが見つかりませんでした。",
             )
         return redirect(url_for("index"))
@@ -125,14 +144,26 @@ def edit_todo(todo_id):
         todo = sheets.get_todo(todo_id)
     except Exception as exc:
         return render_template(
-            "form.html", mode="edit", todo_id=todo_id, categories=sheets.CATEGORIES, todo={}, error=str(exc)
+            "form.html",
+            mode="edit",
+            todo_id=todo_id,
+            categories=sheets.CATEGORIES,
+            priorities=sheets.PRIORITIES,
+            todo={},
+            error=str(exc),
         )
 
     if todo is None:
         return redirect(url_for("index"))
 
     return render_template(
-        "form.html", mode="edit", todo_id=todo_id, categories=sheets.CATEGORIES, todo=todo, error=None
+        "form.html",
+        mode="edit",
+        todo_id=todo_id,
+        categories=sheets.CATEGORIES,
+        priorities=sheets.PRIORITIES,
+        todo=todo,
+        error=None,
     )
 
 

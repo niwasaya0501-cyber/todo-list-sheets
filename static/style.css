@@ -96,12 +96,34 @@ body {
 .todo-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
   border-radius: 10px;
   padding: 1rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
+}
+
+.todo-card.priority-high { border-left-color: #ef4444; }
+.todo-card.priority-mid { border-left-color: #f59e0b; }
+.todo-card.priority-low { border-left-color: #10b981; }
+
+.priority-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.priority-badge.priority-high { background: #fee2e2; color: #b91c1c; }
+.priority-badge.priority-mid { background: #fef3c7; color: #b45309; }
+.priority-badge.priority-low { background: #d1fae5; color: #047857; }
+
+@media (prefers-color-scheme: dark) {
+  .priority-badge.priority-high { background: #451a1a; color: #fca5a5; }
+  .priority-badge.priority-mid { background: #453410; color: #fcd34d; }
+  .priority-badge.priority-low { background: #0f2f24; color: #6ee7b7; }
 }
 
 .todo-title { margin: 0 0 0.4rem; font-size: 1.05rem; }
