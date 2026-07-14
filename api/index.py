@@ -1,3 +1,4 @@
+import hashlib
 import os
 
 from flask import Flask, redirect, render_template, request, url_for
@@ -14,6 +15,17 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static"),
 )
+
+# CSSの内容が変わるたびに値が変わるバージョン文字列。
+# ブラウザがstyle.cssを古いままキャッシュしてしまう問題を避けるため、
+# テンプレート側で "?v=<この値>" をURLに付与する。
+with open(os.path.join(BASE_DIR, "static", "style.css"), "rb") as _f:
+    STYLE_VERSION = hashlib.md5(_f.read()).hexdigest()[:8]
+
+
+@app.context_processor
+def inject_style_version():
+    return {"style_version": STYLE_VERSION}
 
 
 @app.route("/")
