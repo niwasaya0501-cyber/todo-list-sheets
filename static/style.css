@@ -1,0 +1,157 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f7f7f9;
+  --card-bg: #ffffff;
+  --text: #1f2430;
+  --muted: #6b7280;
+  --accent: #3b82f6;
+  --accent-dark: #2563eb;
+  --border: #e5e7eb;
+  --danger-bg: #fee2e2;
+  --danger-text: #991b1b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --card-bg: #1e2128;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #333844;
+    --danger-bg: #3a1e1e;
+    --danger-text: #fca5a5;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--card-bg);
+}
+
+.app-header h1 { margin: 0; font-size: 1.4rem; }
+.app-header a { color: var(--text); text-decoration: none; }
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.toolbar { margin-bottom: 1.25rem; }
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-dark); }
+
+.btn-small { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+
+.btn-danger {
+  background: none;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+.btn-danger:hover { background: #ef4444; color: #fff; }
+
+.todo-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.todo-actions form { margin: 0; }
+
+.todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.todo-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.todo-title { margin: 0 0 0.4rem; font-size: 1.05rem; }
+.todo-content { margin: 0; color: var(--muted); white-space: pre-wrap; }
+
+.todo-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.todo-due { font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+
+.empty-state { color: var(--muted); }
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+.alert-error { background: var(--danger-bg); color: var(--danger-text); }
+
+.todo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.todo-form label { font-size: 0.85rem; color: var(--muted); margin-top: 0.6rem; }
+.required { color: #ef4444; }
+
+.todo-form input, .todo-form textarea {
+  padding: 0.55rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.form-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.6rem;
+}

@@ -1,0 +1,10 @@
+.env
+*.json
+!vercel.json
+__pycache__/
+*.pyc
+.vercel
+venv/
+.venv/
+.env*
+!.env.example
